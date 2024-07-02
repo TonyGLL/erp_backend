@@ -35,8 +35,9 @@ func (server *Server) SetupRoutes() http.Handler {
 		v1.GET("/users", server.getUsers)
 		v1.POST("/users", server.createUser)
 		v1.GET("/users/:id", server.getUser)
-		v1.PATCH("/users/:id", server.updateUser)
+		v1.PUT("/users/:id", server.updateUser)
 		v1.DELETE("/users/:id", server.deleteUser)
+		v1.GET("/users/download/csv", server.downloadUsersCSV)
 	}
 
 	return r

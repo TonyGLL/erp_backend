@@ -1,11 +1,16 @@
 package api
 
 import (
+	"bytes"
 	"database/sql"
+	"encoding/csv"
+	"fmt"
 	"net/http"
+	"time"
 
 	db "github.com/TonyGLL/erp_backend/db/sqlc"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 /* GET USER */
@@ -84,25 +89,198 @@ type TestResponse struct {
 }
 
 /* CREATE USER */
+type CreateUserRequest struct {
+	RoleID         int    `json:"role_id" binding:"required"`
+	UserTypeID     int    `json:"user_type_id" binding:"required"`
+	Name           string `json:"name" binding:"required"`
+	FirstLastName  string `json:"first_last_name" binding:"required"`
+	SecondLastName string `json:"second_last_name" binding:"required"`
+	Email          string `json:"email" binding:"required"`
+	Age            int    `json:"age" binding:"required"`
+	Phone          string `json:"phone" binding:"required"`
+	Username       string `json:"username" binding:"required"`
+	Avatar         string `json:"avatar" binding:"required"`
+	Salary         int    `json:"salary" binding:"required"`
+	Password       string `json:"password" binding:"required"`
+}
+
 func (server *Server) createUser(ctx *gin.Context) {
-	response := TestResponse{
-		Ok: true,
+	var req CreateUserRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
-	ctx.JSON(http.StatusCreated, response)
+
+	arg := db.CreateUserParams{
+		RoleID:         req.RoleID,
+		UserTypeID:     req.UserTypeID,
+		Name:           req.Name,
+		FirstLastName:  req.FirstLastName,
+		SecondLastName: req.SecondLastName,
+		Email:          req.Email,
+		Age:            req.Age,
+		Phone:          req.Phone,
+		Username:       req.Username,
+		Avatar:         req.Avatar,
+		Salary:         req.Salary,
+	}
+
+	user_id, err := server.store.CreateUser(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.Password), 10)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	passArg := db.CreatePasswordParams{
+		UserID:   user_id,
+		Password: string(hashedPass),
+	}
+
+	err = server.store.CreatePassword(ctx, passArg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{"message": "User created successfully."})
 }
 
 /* UPDATE USER */
+
+type UpdateUserRequestBody struct {
+	Name           string `json:"name" binding:"required"`
+	FirstLastName  string `json:"first_last_name" binding:"required"`
+	SecondLastName string `json:"second_last_name" binding:"required"`
+	Age            int    `json:"age" binding:"required"`
+	Avatar         string `json:"avatar" binding:"required"`
+	Salary         int    `json:"salary" binding:"required"`
+}
+
+type UpdateUserRequestUri struct {
+	ID int32 `uri:"id" binding:"required,min=1"`
+}
+
 func (server *Server) updateUser(ctx *gin.Context) {
-	response := TestResponse{
-		Ok: true,
+	var reqBody UpdateUserRequestBody
+	if err := ctx.ShouldBindJSON(&reqBody); err != nil {
+
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
-	ctx.JSON(http.StatusNoContent, response)
+
+	var reqUri UpdateUserRequestUri
+	if err := ctx.ShouldBindUri(&reqUri); err != nil {
+
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	arg := db.UpdateUserParams{
+		ID:             reqUri.ID,
+		Name:           reqBody.Name,
+		FirstLastName:  reqBody.FirstLastName,
+		SecondLastName: reqBody.SecondLastName,
+		Age:            reqBody.Age,
+		Avatar:         reqBody.Avatar,
+		Salary:         reqBody.Salary,
+	}
+
+	err := server.store.UpdateUser(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusNoContent, gin.H{"message": "User updated successfully."})
 }
 
 /* DELETE USER */
+type DeleteUserRequest struct {
+	ID int32 `uri:"id" binding:"required,min=1"`
+}
+
 func (server *Server) deleteUser(ctx *gin.Context) {
-	response := TestResponse{
-		Ok: true,
+	var req DeleteUserRequest
+	if err := ctx.ShouldBindUri(&req); err != nil {
+
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
-	ctx.JSON(http.StatusNoContent, response)
+
+	arg := db.DeleteUserParams{
+		ID: req.ID,
+	}
+
+	err := server.store.DeleteUser(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusNoContent, gin.H{"message": "User deleted successfully."})
+}
+
+/* DOWNLOAD CSV */
+func (server *Server) downloadUsersCSV(ctx *gin.Context) {
+	users, err := server.store.GetUsersForDownload(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	// Crear un buffer en memoria para el CSV
+	buffer := &bytes.Buffer{}
+	writer := csv.NewWriter(buffer)
+
+	// Escribir el encabezado del CSV
+	header := []string{"ID", "Role ID", "User Type ID", "Name", "First Last Name", "Second Last Name", "Email", "Age", "Phone", "Username", "Avatar", "Cellphone Verification", "Salary", "Deleted", "Created At", "Updated At"}
+	if err := writer.Write(header); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo escribir el encabezado en el archivo CSV"})
+		return
+	}
+
+	// Iterar sobre las filas y escribir los datos en el CSV
+	for _, user := range users {
+		record := []string{
+			fmt.Sprintf("%d", user.ID),
+			fmt.Sprintf("%d", user.RoleID),
+			fmt.Sprintf("%d", user.UserTypeID),
+			user.Name,
+			user.FirstLastName,
+			user.SecondLastName,
+			user.Email,
+			fmt.Sprintf("%d", user.Age),
+			user.Phone,
+			user.Username,
+			user.Avatar,
+			fmt.Sprintf("%t", user.CellphoneVerification),
+			fmt.Sprintf("%f", user.Salary),
+			fmt.Sprintf("%t", user.Deleted),
+			user.CreatedAt.Format(time.RFC3339),
+			user.UpdatedAt.Format(time.RFC3339),
+		}
+		if err := writer.Write(record); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo escribir la fila en el archivo CSV"})
+			return
+		}
+	}
+
+	writer.Flush()
+
+	if err := writer.Error(); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Error al escribir el CSV"})
+		return
+	}
+
+	// Configurar los encabezados de la respuesta
+	filename := fmt.Sprintf("users_%s.csv", time.Now().Format("20060102_150405"))
+	ctx.Header("Content-Description", "File Transfer")
+	ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
+	ctx.Data(http.StatusOK, "text/csv", buffer.Bytes())
 }
