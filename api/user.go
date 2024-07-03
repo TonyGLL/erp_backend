@@ -18,6 +18,23 @@ type getUserRequest struct {
 	ID int32 `uri:"id" binding:"required,min=1"`
 }
 
+// Get User	godoc
+// @Summary Get user
+// @Description Get user by ID
+// @Tags Users
+// @Accept json
+// @Produce application/json
+// @Param			id	path		getUserRequest		true	"User ID"
+// @securityDefinitions.apiKey JWT
+// @in header
+// @name Authorization
+// @Security JWT
+// @Success 200 {object} db.GetUserRow
+// @Failure		401			{string}	gin.H	"StatusUnauthorized"
+// @Failure		400			{string}	gin.H	"StatusBadRequest"
+// @Failure		404			{string}	gin.H	"StatusNotFound"
+// @Failure		500			{string}	gin.H	"StatusInternalServerError"
+// @Router /users/{id} [get]
 func (server *Server) getUser(ctx *gin.Context) {
 	var req getUserRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
@@ -51,6 +68,21 @@ type getUsersResponse struct {
 	Users []db.GetUserRow `json:"users"`
 }
 
+// Get Users	godoc
+// @Summary Get users
+// @Description Get all users
+// @Tags Users
+// @Accept json
+// @Produce application/json
+// @Param	request	query	getUsersRequest true "Query Params"
+// @securityDefinitions.apiKey JWT
+// @in header
+// @name Authorization
+// @Security JWT
+// @Success 200 {object} getUsersResponse
+// @Failure		401			{string}	gin.H	"StatusUnauthorized"
+// @Failure		500			{string}	gin.H	"StatusInternalServerError"
+// @Router /users [get]
 func (server *Server) getUsers(ctx *gin.Context) {
 	var req getUsersRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
@@ -104,6 +136,21 @@ type CreateUserRequest struct {
 	Password       string `json:"password" binding:"required"`
 }
 
+// Create User	godoc
+// @Summary Create user
+// @Description Create user
+// @Tags Users
+// @Accept json
+// @Produce application/json
+// @Param   User       body CreateUserRequest true "User"
+// @securityDefinitions.apiKey JWT
+// @in header
+// @name Authorization
+// @Security JWT
+// @Success 201 {string} gin.H User created successfully.
+// @Failure		401			{string}	gin.H	"StatusUnauthorized"
+// @Failure		500			{string}	gin.H	"StatusInternalServerError"
+// @Router /users [post]
 func (server *Server) createUser(ctx *gin.Context) {
 	var req CreateUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -167,6 +214,22 @@ type UpdateUserRequestUri struct {
 	ID int32 `uri:"id" binding:"required,min=1"`
 }
 
+// Update User	godoc
+// @Summary Update user
+// @Description Update user
+// @Tags Users
+// @Accept json
+// @Produce application/json
+// @Param   User       body UpdateUserRequestBody true "User"
+// @Param			id	path		UpdateUserRequestUri		true	"User ID"
+// @securityDefinitions.apiKey JWT
+// @in header
+// @name Authorization
+// @Security JWT
+// @Success 204 {string} gin.H User updated successfully.
+// @Failure		401			{string}	gin.H	"StatusUnauthorized"
+// @Failure		500			{string}	gin.H	"StatusInternalServerError"
+// @Router /users/{id} [put]
 func (server *Server) updateUser(ctx *gin.Context) {
 	var reqBody UpdateUserRequestBody
 	if err := ctx.ShouldBindJSON(&reqBody); err != nil {
@@ -205,6 +268,21 @@ type DeleteUserRequest struct {
 	ID int32 `uri:"id" binding:"required,min=1"`
 }
 
+// Delete User	godoc
+// @Summary Delete user
+// @Description Delete user
+// @Tags Users
+// @Accept json
+// @Produce application/json
+// @Param			id	path		DeleteUserRequest		true	"User ID"
+// @securityDefinitions.apiKey JWT
+// @in header
+// @name Authorization
+// @Security JWT
+// @Success 204 {string} gin.H User deleted successfully.
+// @Failure		401			{string}	gin.H	"StatusUnauthorized"
+// @Failure		500			{string}	gin.H	"StatusInternalServerError"
+// @Router /users/{id} [delete]
 func (server *Server) deleteUser(ctx *gin.Context) {
 	var req DeleteUserRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
@@ -227,6 +305,21 @@ func (server *Server) deleteUser(ctx *gin.Context) {
 }
 
 /* DOWNLOAD CSV */
+// Download CSV	godoc
+// @Summary Download CSV
+// @Description Download CSV
+// @Tags Users
+// @Accept json
+// @Produce application/json
+// @securityDefinitions.apiKey JWT
+// @in header
+// @name Authorization
+// @Security JWT
+// @Success 200 {string} text/csv
+// @Failure		401			{string}	gin.H	"StatusUnauthorized"
+// @Failure		400			{string}	gin.H	"StatusBadRequest"
+// @Failure		500			{string}	gin.H	"StatusInternalServerError"
+// @Router /users/download/csv [get]
 func (server *Server) downloadUsersCSV(ctx *gin.Context) {
 	users, err := server.store.GetUsersForDownload(ctx)
 	if err != nil {

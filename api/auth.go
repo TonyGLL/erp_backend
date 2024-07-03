@@ -17,6 +17,17 @@ type AuthLoginResponse struct {
 	Token string `json:"token"`
 }
 
+// Login	godoc
+// @Summary Login
+// @Description Login
+// @Tags Auth
+// @Accept json
+// @Param   User       body AuthLoginRequest true "User auth"
+// @Produce application/json
+// @Success 200 {object} AuthLoginResponse
+// @Failure 400 {string} StatusBadRequest
+// @Failure 403 {string} StatusForbidden
+// @Router /auth/login [post]
 func (server *Server) AuthLogin(ctx *gin.Context) {
 	var req AuthLoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {

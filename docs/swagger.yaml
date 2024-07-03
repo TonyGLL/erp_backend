@@ -1,0 +1,371 @@
+definitions:
+  api.AuthLoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  api.AuthLoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  api.CreateUserRequest:
+    properties:
+      age:
+        type: integer
+      avatar:
+        type: string
+      email:
+        type: string
+      first_last_name:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      role_id:
+        type: integer
+      salary:
+        type: integer
+      second_last_name:
+        type: string
+      user_type_id:
+        type: integer
+      username:
+        type: string
+    required:
+    - age
+    - avatar
+    - email
+    - first_last_name
+    - name
+    - password
+    - phone
+    - role_id
+    - salary
+    - second_last_name
+    - user_type_id
+    - username
+    type: object
+  api.UpdateUserRequestBody:
+    properties:
+      age:
+        type: integer
+      avatar:
+        type: string
+      first_last_name:
+        type: string
+      name:
+        type: string
+      salary:
+        type: integer
+      second_last_name:
+        type: string
+    required:
+    - age
+    - avatar
+    - first_last_name
+    - name
+    - salary
+    - second_last_name
+    type: object
+  api.getUsersResponse:
+    properties:
+      page:
+        type: integer
+      total:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/db.GetUserRow'
+        type: array
+    type: object
+  db.GetUserRow:
+    properties:
+      age:
+        type: integer
+      avatar:
+        type: string
+      cellphone_verification:
+        type: boolean
+      created_at:
+        type: string
+      deleted:
+        type: boolean
+      email:
+        type: string
+      first_last_name:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      phone:
+        type: string
+      role_id:
+        type: integer
+      role_name:
+        type: string
+      salary:
+        type: number
+      second_last_name:
+        type: string
+      updated_at:
+        type: string
+      user_type_id:
+        type: integer
+      user_type_name:
+        type: string
+      username:
+        type: string
+    type: object
+info:
+  contact:
+    email: tonygllambia@gmail.com
+    name: Tony Gonzalez
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login
+      parameters:
+      - description: User auth
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/api.AuthLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AuthLoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+      summary: Login
+      tags:
+      - Auth
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Get all users
+      parameters:
+      - in: query
+        maximum: 10
+        minimum: 5
+        name: limit
+        required: true
+        type: integer
+      - in: query
+        minimum: 1
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.getUsersResponse'
+        "401":
+          description: StatusUnauthorized
+          schema:
+            type: string
+        "500":
+          description: StatusInternalServerError
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: Get users
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Create user
+      parameters:
+      - description: User
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/api.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "401":
+          description: StatusUnauthorized
+          schema:
+            type: string
+        "500":
+          description: StatusInternalServerError
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: Create user
+      tags:
+      - Users
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user
+      parameters:
+      - in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "401":
+          description: StatusUnauthorized
+          schema:
+            type: string
+        "500":
+          description: StatusInternalServerError
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: Delete user
+      tags:
+      - Users
+    get:
+      consumes:
+      - application/json
+      description: Get user by ID
+      parameters:
+      - in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.GetUserRow'
+        "400":
+          description: StatusBadRequest
+          schema:
+            type: string
+        "401":
+          description: StatusUnauthorized
+          schema:
+            type: string
+        "404":
+          description: StatusNotFound
+          schema:
+            type: string
+        "500":
+          description: StatusInternalServerError
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: Get user
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Update user
+      parameters:
+      - description: User
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/api.UpdateUserRequestBody'
+      - in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "401":
+          description: StatusUnauthorized
+          schema:
+            type: string
+        "500":
+          description: StatusInternalServerError
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: Update user
+      tags:
+      - Users
+  /users/download/csv:
+    get:
+      consumes:
+      - application/json
+      description: Download CSV
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: StatusBadRequest
+          schema:
+            type: string
+        "401":
+          description: StatusUnauthorized
+          schema:
+            type: string
+        "500":
+          description: StatusInternalServerError
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: Download CSV
+      tags:
+      - Users
+securityDefinitions:
+  JWT:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

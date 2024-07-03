@@ -11,6 +11,12 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// @contact.name Tony Gonzalez
+// @contact.utl https://github.com/TonyGLL
+// @contact.email tonygllambia@gmail.com
+// @securityDefinitions.apiKey JWT
+// @in header
+// @name Authorization
 func main() {
 	config, err := util.LoadConfig(".")
 	fmt.Println(config)
@@ -24,7 +30,7 @@ func main() {
 	}
 
 	store := db.NewStore(conn)
-	server := api.NewServer(store, config.ServerAddress)
+	server := api.NewServer(store, config.ServerAddress, config.Version)
 
 	err = server.ListenAndServe()
 	if err != nil {

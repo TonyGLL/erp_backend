@@ -13,7 +13,7 @@ type Server struct {
 	store db.Store
 }
 
-func NewServer(store db.Store, port string) *http.Server {
+func NewServer(store db.Store, port string, version string) *http.Server {
 	NewServer := &Server{
 		store: store,
 		port:  port,
@@ -22,7 +22,7 @@ func NewServer(store db.Store, port string) *http.Server {
 	// Declare Server config
 	server := &http.Server{
 		Addr:         port,
-		Handler:      NewServer.SetupRoutes(),
+		Handler:      NewServer.SetupRoutes(version),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
