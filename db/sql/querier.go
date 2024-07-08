@@ -14,6 +14,8 @@ type Querier interface {
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
 	DeleteUser(ctx context.Context, arg DeleteUserParams) error
 	GetUsersForDownload(ctx context.Context) ([]GetUserRow, error)
+	GetRoles(ctx context.Context, arg GetRolesParams) ([]Role, error)
+	CountRoles(ctx context.Context) (int64, error)
 }
 
 var _ Querier = (*Queries)(nil)

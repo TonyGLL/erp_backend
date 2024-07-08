@@ -22,12 +22,9 @@ SELECT
     u.created_at,
     u.updated_at,
     r.id AS role_id,
-    r.name AS role_name,
-    ut.id AS user_type_id,
-    ut.type AS user_type_name
+    r.name AS role_name
 FROM erp_schema.users u
 LEFT JOIN erp_schema.roles r ON u.role_id = r.id
-LEFT JOIN erp_schema.user_types ut ON u.user_type_id = ut.id
 WHERE u.id = $1 AND u.deleted IS NOT TRUE LIMIT 1
 `
 
@@ -48,8 +45,6 @@ type GetUserRow struct {
 	UpdatedAt             time.Time `json:"updated_at"`
 	RoleID                int32     `json:"role_id"`
 	RoleName              string    `json:"role_name"`
-	UserTypeID            int32     `json:"user_type_id"`
-	UserTypeName          string    `json:"user_type_name"`
 }
 
 func (q *Queries) GetUser(ctx context.Context, id int32) (GetUserRow, error) {
@@ -72,8 +67,6 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (GetUserRow, error) {
 		&user.UpdatedAt,
 		&user.RoleID,
 		&user.RoleName,
-		&user.UserTypeID,
-		&user.UserTypeName,
 	)
 	return user, err
 }
@@ -95,12 +88,9 @@ SELECT
     u.created_at,
     u.updated_at,
     r.id AS role_id,
-    r.name AS role_name,
-    ut.id AS user_type_id,
-    ut.type AS user_type_name
+    r.name AS role_name
 FROM erp_schema.users u
 LEFT JOIN erp_schema.roles r ON u.role_id = r.id
-LEFT JOIN erp_schema.user_types ut ON u.user_type_id = ut.id
 WHERE u.deleted IS NOT TRUE
 ORDER BY u.id
 LIMIT $1 OFFSET $2
@@ -137,8 +127,6 @@ func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]GetUserRo
 			&user.UpdatedAt,
 			&user.RoleID,
 			&user.RoleName,
-			&user.UserTypeID,
-			&user.UserTypeName,
 		); err != nil {
 			return nil, err
 		}
@@ -167,13 +155,12 @@ func (q *Queries) CountUsers(ctx context.Context) (int64, error) {
 }
 
 const createUser = `
-INSERT INTO erp_schema.users (role_id, user_type_id, name, first_last_name, second_last_name, email, age, phone, username, avatar, salary) 
+INSERT INTO erp_schema.users (role_id, name, first_last_name, second_last_name, email, age, phone, username, avatar, salary) 
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id
 `
 
 type CreateUserParams struct {
 	RoleID         int    `json:"role_id"`
-	UserTypeID     int    `json:"user_type_id"`
 	Name           string `json:"name"`
 	FirstLastName  string `json:"first_last_name"`
 	SecondLastName string `json:"second_last_name"`
@@ -186,7 +173,7 @@ type CreateUserParams struct {
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int32, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.RoleID, arg.UserTypeID, arg.Name, arg.FirstLastName, arg.SecondLastName, arg.Email, arg.Age, arg.Phone, arg.Username, arg.Avatar, arg.Salary)
+	row := q.db.QueryRowContext(ctx, createUser, arg.RoleID, arg.Name, arg.FirstLastName, arg.SecondLastName, arg.Email, arg.Age, arg.Phone, arg.Username, arg.Avatar, arg.Salary)
 	var user User
 	err := row.Scan(
 		&user.ID,
@@ -262,12 +249,9 @@ SELECT
     u.created_at,
     u.updated_at,
     r.id AS role_id,
-    r.name AS role_name,
-    ut.id AS user_type_id,
-    ut.type AS user_type_name
+    r.name AS role_name
 FROM erp_schema.users u
 LEFT JOIN erp_schema.roles r ON u.role_id = r.id
-LEFT JOIN erp_schema.user_types ut ON u.user_type_id = ut.id
 WHERE u.deleted IS NOT TRUE
 ORDER BY u.id
 `
@@ -298,8 +282,6 @@ func (q *Queries) GetUsersForDownload(ctx context.Context) ([]GetUserRow, error)
 			&user.UpdatedAt,
 			&user.RoleID,
 			&user.RoleName,
-			&user.UserTypeID,
-			&user.UserTypeName,
 		); err != nil {
 			return nil, err
 		}

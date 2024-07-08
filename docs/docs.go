@@ -64,6 +64,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/roles": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get all roles",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Get Roles",
+                "parameters": [
+                    {
+                        "maximum": 10,
+                        "minimum": 5,
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.getRolesResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "StatusUnauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "StatusInternalServerError",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "security": [
@@ -418,7 +475,6 @@ const docTemplate = `{
                 "role_id",
                 "salary",
                 "second_last_name",
-                "user_type_id",
                 "username"
             ],
             "properties": {
@@ -451,9 +507,6 @@ const docTemplate = `{
                 },
                 "second_last_name": {
                     "type": "string"
-                },
-                "user_type_id": {
-                    "type": "integer"
                 },
                 "username": {
                     "type": "string"
@@ -488,6 +541,23 @@ const docTemplate = `{
                 },
                 "second_last_name": {
                     "type": "string"
+                }
+            }
+        },
+        "api.getRolesResponse": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "type": "integer"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.Role"
+                    }
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -556,13 +626,47 @@ const docTemplate = `{
                 "updated_at": {
                     "type": "string"
                 },
-                "user_type_id": {
-                    "type": "integer"
-                },
-                "user_type_name": {
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.Module": {
+            "type": "object",
+            "properties": {
+                "created_at": {
                     "type": "string"
                 },
-                "username": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.Role": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "modules": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.Module"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }

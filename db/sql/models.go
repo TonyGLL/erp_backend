@@ -137,6 +137,7 @@ type Role struct {
 	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+	Modules   []Module  `json:"modules"`
 }
 
 type RoleModule struct {
@@ -163,7 +164,6 @@ type Transfer struct {
 
 type User struct {
 	ID                    int32     `json:"id"`
-	UserTypeID            int32     `json:"user_type_id"`
 	Name                  string    `json:"name"`
 	FirstLastName         string    `json:"first_last_name"`
 	SecondLastName        string    `json:"second_last_name"`
@@ -178,12 +178,4 @@ type User struct {
 	CreatedAt             time.Time `json:"created_at"`
 	UpdatedAt             time.Time `json:"updated_at"`
 	Role                  Role      `json:"role"`
-	UserType              UserType  `json:"user_type"`
-}
-
-type UserType struct {
-	ID        int32     `json:"id"`
-	Type      string    `json:"type"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
 }

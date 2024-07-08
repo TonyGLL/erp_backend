@@ -28,7 +28,7 @@ build:
 	@CONFIG_FILE=local.env go build -o main main.go
 
 mock:
-	mockgen -package mockdb -destination db/mock/store.go github.com/TonyGLL/erp_backend/db/sqlc Store
+	mockgen -package mockdb -destination db/mock/store.go github.com/TonyGLL/erp_backend/db/sql Store
 
 # Live Reload
 watch:
@@ -56,4 +56,4 @@ up-prod:
 down:
 	@docker-compose down
 
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc server mock up up-dev up-prod down
+.PHONY: postgres createdb dropdb migrateup migratedown server mock up up-dev up-prod down

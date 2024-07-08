@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	db "github.com/TonyGLL/erp_backend/db/sqlc"
+	db "github.com/TonyGLL/erp_backend/db/sql"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -116,14 +116,9 @@ func (server *Server) getUsers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-type TestResponse struct {
-	Ok bool `json:"ok"`
-}
-
 /* CREATE USER */
 type CreateUserRequest struct {
 	RoleID         int    `json:"role_id" binding:"required"`
-	UserTypeID     int    `json:"user_type_id" binding:"required"`
 	Name           string `json:"name" binding:"required"`
 	FirstLastName  string `json:"first_last_name" binding:"required"`
 	SecondLastName string `json:"second_last_name" binding:"required"`
@@ -161,7 +156,6 @@ func (server *Server) createUser(ctx *gin.Context) {
 
 	arg := db.CreateUserParams{
 		RoleID:         req.RoleID,
-		UserTypeID:     req.UserTypeID,
 		Name:           req.Name,
 		FirstLastName:  req.FirstLastName,
 		SecondLastName: req.SecondLastName,
@@ -343,7 +337,6 @@ func (server *Server) downloadUsersCSV(ctx *gin.Context) {
 		record := []string{
 			fmt.Sprintf("%d", user.ID),
 			fmt.Sprintf("%d", user.RoleID),
-			fmt.Sprintf("%d", user.UserTypeID),
 			user.Name,
 			user.FirstLastName,
 			user.SecondLastName,

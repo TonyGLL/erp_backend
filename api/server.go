@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	db "github.com/TonyGLL/erp_backend/db/sqlc"
+	db "github.com/TonyGLL/erp_backend/db/sql"
 	"github.com/gin-gonic/gin"
 )
 

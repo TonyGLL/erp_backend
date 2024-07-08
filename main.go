@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/TonyGLL/erp_backend/api"
-	db "github.com/TonyGLL/erp_backend/db/sqlc"
+	db "github.com/TonyGLL/erp_backend/db/sql"
 	"github.com/TonyGLL/erp_backend/util"
 	_ "github.com/lib/pq"
 )

@@ -36,8 +36,6 @@ definitions:
         type: integer
       second_last_name:
         type: string
-      user_type_id:
-        type: integer
       username:
         type: string
     required:
@@ -51,7 +49,6 @@ definitions:
     - role_id
     - salary
     - second_last_name
-    - user_type_id
     - username
     type: object
   api.UpdateUserRequestBody:
@@ -75,6 +72,17 @@ definitions:
     - name
     - salary
     - second_last_name
+    type: object
+  api.getRolesResponse:
+    properties:
+      page:
+        type: integer
+      roles:
+        items:
+          $ref: '#/definitions/db.Role'
+        type: array
+      total:
+        type: integer
     type: object
   api.getUsersResponse:
     properties:
@@ -119,11 +127,33 @@ definitions:
         type: string
       updated_at:
         type: string
-      user_type_id:
-        type: integer
-      user_type_name:
-        type: string
       username:
+        type: string
+    type: object
+  db.Module:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  db.Role:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      modules:
+        items:
+          $ref: '#/definitions/db.Module'
+        type: array
+      name:
+        type: string
+      updated_at:
         type: string
     type: object
 info:
@@ -161,6 +191,43 @@ paths:
       summary: Login
       tags:
       - Auth
+  /roles:
+    get:
+      consumes:
+      - application/json
+      description: Get all roles
+      parameters:
+      - in: query
+        maximum: 10
+        minimum: 5
+        name: limit
+        required: true
+        type: integer
+      - in: query
+        minimum: 1
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.getRolesResponse'
+        "401":
+          description: StatusUnauthorized
+          schema:
+            type: string
+        "500":
+          description: StatusInternalServerError
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: Get Roles
+      tags:
+      - Roles
   /users:
     get:
       consumes:

@@ -50,6 +50,13 @@ func (server *Server) SetupRoutes(version string) http.Handler {
 		v1.PUT("/users/:id", server.updateUser)
 		v1.DELETE("/users/:id", server.deleteUser)
 		v1.GET("/users/download/csv", server.downloadUsersCSV)
+
+		/* ROLES */
+		v1.GET("/roles", server.getRoles)
+
+		/* MODULES */
+
+		/* PAYROLLS */
 	}
 
 	return r
