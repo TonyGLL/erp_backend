@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:13-alpine
+    container_name: postgres_erp
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: erp
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - erp_network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        CONFIG_FILE: ${CONFIG_FILE:-dev.env}
+    image: erp:0.0.1
+    container_name: erp
+    ports:
+      - "3000:3000"
+    environment:
+      - CONFIG_FILE=${CONFIG_FILE:-dev.env}
+      - DB_SOURCE=postgresql://root:secret@postgres_erp:5432/erp?sslmode=disable
+    depends_on:
+      - db
+    networks:
+      - erp_network
+
+networks:
+  erp_network:
+    driver: bridge
+
+volumes:
+  postgres_data:

@@ -5,7 +5,6 @@ CREATE SCHEMA erp_schema;
 CREATE TABLE erp_schema.users (
   id SERIAL PRIMARY KEY,
   role_id integer NOT NULL,
-  user_type_id integer NOT NULL,
   name varchar(30) NOT NULL,
   first_last_name varchar(30) NOT NULL,
   second_last_name varchar(30) NOT NULL,
@@ -17,13 +16,6 @@ CREATE TABLE erp_schema.users (
   cellphone_verification boolean NOT NULL DEFAULT false,
   salary float NOT NULL,
   deleted boolean NOT NULL DEFAULT false,
-  created_at timestamp NOT NULL DEFAULT now(),
-  updated_at timestamp NOT NULL DEFAULT now()
-);
-
-CREATE TABLE erp_schema.user_types (
-  id SERIAL PRIMARY KEY,
-  type varchar(20) UNIQUE NOT NULL,
   created_at timestamp NOT NULL DEFAULT now(),
   updated_at timestamp NOT NULL DEFAULT now()
 );
@@ -187,8 +179,7 @@ CREATE TABLE erp_schema.payroll_bonuses (
 
 -- Add foreign keys
 ALTER TABLE erp_schema.users
-  ADD CONSTRAINT fk_role_id FOREIGN KEY (role_id) REFERENCES erp_schema.roles (id),
-  ADD CONSTRAINT fk_user_type_id FOREIGN KEY (user_type_id) REFERENCES erp_schema.user_types (id);
+  ADD CONSTRAINT fk_role_id FOREIGN KEY (role_id) REFERENCES erp_schema.roles (id);
 
 ALTER TABLE erp_schema.passwords
   ADD CONSTRAINT fk_password_user_id FOREIGN KEY (user_id) REFERENCES erp_schema.users (id);

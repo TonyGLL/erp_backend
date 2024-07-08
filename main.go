@@ -2,8 +2,8 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
+	"os"
 
 	"github.com/TonyGLL/erp_backend/api"
 	db "github.com/TonyGLL/erp_backend/db/sqlc"
@@ -18,10 +18,14 @@ import (
 // @in header
 // @name Authorization
 func main() {
-	config, err := util.LoadConfig(".")
-	fmt.Println(config)
+	configFile := os.Getenv("CONFIG_FILE")
+	if configFile == "" {
+		log.Fatal("CONFIG_FILE environment variable not set")
+	}
+
+	config, err := util.LoadConfig(".", configFile)
 	if err != nil {
-		log.Fatal("cannot load config:", err)
+		log.Fatalf("cannot load config: %v", err)
 	}
 
 	conn, err := sql.Open(config.DBDriver, config.DBSource)

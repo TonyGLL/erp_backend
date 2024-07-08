@@ -2,7 +2,7 @@ initschema:
 	migrate create -ext sql -dir db/migration -seq init_schema
 
 postgres:
-	docker run --name postgres_erp -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:13-alpine
+	docker-compose up -d --build db
 
 createdb:
 	docker exec -it postgres_erp createdb --username=root --owner=root erp
@@ -20,12 +20,12 @@ test:
 	go test -v -cover ./...
 
 server:
-	go run main.go
+	CONFIG_FILE=local.env go run main.go
 
 build:
 	@echo "Building..."
 
-	@go build -o main main.go
+	@CONFIG_FILE=local.env go build -o main main.go
 
 mock:
 	mockgen -package mockdb -destination db/mock/store.go github.com/TonyGLL/erp_backend/db/sqlc Store
@@ -33,13 +33,13 @@ mock:
 # Live Reload
 watch:
 	@if command -v air > /dev/null; then \
-	    air; \
+	    CONFIG_FILE=local.env air; \
 	    echo "Watching...";\
 	else \
 	    read -p "Go's 'air' is not installed on your machine. Do you want to install it? [Y/n] " choice; \
 	    if [ "$$choice" != "n" ] && [ "$$choice" != "N" ]; then \
 	        go install github.com/air-verse/air@latest; \
-	        air; \
+	        CONFIG_FILE=local.env air; \
 	        echo "Watching...";\
 	    else \
 	        echo "You chose not to install air. Exiting..."; \
@@ -47,4 +47,13 @@ watch:
 	    fi; \
 	fi
 
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc server mock
+up-dev:
+	@CONFIG_FILE=dev.env docker-compose up --build -d app
+
+up-prod:
+	@CONFIG_FILE=prod.env docker-compose up --build -d app
+
+down:
+	@docker-compose down
+
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc server mock up up-dev up-prod down
