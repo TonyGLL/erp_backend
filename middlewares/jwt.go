@@ -16,14 +16,12 @@ func AuthenticateMiddleware(ctx *gin.Context) {
 		return
 	}
 
-	header := strings.Split(authorization, " ")
-	if len(header) != 2 {
+	token := strings.Split(authorization, " ")[1]
+	if token == "" {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		ctx.Abort()
 		return
 	}
-
-	token := header[1]
 
 	_, err := util.VerifyToken(token)
 	if err != nil {
