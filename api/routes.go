@@ -1,12 +1,14 @@
 package api
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/TonyGLL/erp_backend/docs"
 	"github.com/TonyGLL/erp_backend/middlewares"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/robfig/cron/v3"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -61,6 +63,11 @@ func (server *Server) SetupRoutes(version string) http.Handler {
 		/* EMAIL */
 		v1.POST("/email", server.sendEmail)
 	}
+
+	/* CRONS */
+	c := cron.New()
+	c.AddFunc("@every 24h", func() { server.EmailCron(context.Background()) })
+	c.Start()
 
 	return r
 }
