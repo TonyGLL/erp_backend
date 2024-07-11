@@ -1,0 +1,7 @@
+main
+Makefile
+RADME.md
+.air.toml
+tmp
+schema
+db/migration

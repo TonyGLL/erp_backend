@@ -57,6 +57,9 @@ func (server *Server) SetupRoutes(version string) http.Handler {
 		/* MODULES */
 
 		/* PAYROLLS */
+
+		/* EMAIL */
+		v1.POST("/email", server.sendEmail)
 	}
 
 	return r

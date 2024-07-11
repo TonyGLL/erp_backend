@@ -34,7 +34,7 @@ func main() {
 	}
 
 	store := db.NewStore(conn)
-	server := api.NewServer(store, config.ServerAddress, config.Version)
+	server := api.NewServer(store, config)
 
 	err = server.ListenAndServe()
 	if err != nil {

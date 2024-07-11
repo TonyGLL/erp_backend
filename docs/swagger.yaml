@@ -191,6 +191,31 @@ paths:
       summary: Login
       tags:
       - Auth
+  /email:
+    post:
+      consumes:
+      - application/json
+      description: Send Email
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "401":
+          description: StatusUnauthorized
+          schema:
+            type: string
+        "500":
+          description: StatusInternalServerError
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: Send Email
+      tags:
+      - SMTP
   /roles:
     get:
       consumes:

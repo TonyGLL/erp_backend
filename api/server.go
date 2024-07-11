@@ -5,24 +5,25 @@ import (
 	"time"
 
 	db "github.com/TonyGLL/erp_backend/db/sql"
+	"github.com/TonyGLL/erp_backend/util"
 	"github.com/gin-gonic/gin"
 )
 
 type Server struct {
-	port  string
-	store db.Store
+	store  db.Store
+	config util.Config
 }
 
-func NewServer(store db.Store, port string, version string) *http.Server {
+func NewServer(store db.Store, config util.Config) *http.Server {
 	NewServer := &Server{
-		store: store,
-		port:  port,
+		store:  store,
+		config: config,
 	}
 
 	// Declare Server config
 	server := &http.Server{
-		Addr:         port,
-		Handler:      NewServer.SetupRoutes(version),
+		Addr:         config.ServerAddress,
+		Handler:      NewServer.SetupRoutes(config.Version),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
