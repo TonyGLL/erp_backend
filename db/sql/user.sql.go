@@ -156,7 +156,7 @@ func (q *Queries) CountUsers(ctx context.Context) (int64, error) {
 
 const createUser = `
 INSERT INTO erp_schema.users (role_id, name, first_last_name, second_last_name, email, age, phone, username, avatar, salary) 
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id
 `
 
 type CreateUserParams struct {
